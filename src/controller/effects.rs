@@ -6,6 +6,7 @@ use crate::controller::stream::Settings;
 pub mod melbank;
 pub mod spectrum;
 pub mod shine;
+pub mod fft;
 
 type GainFilter = ExponentialFilter<f32>;
 type SmoothingFilter = ExponentialFilter<Vec<f32>>;
@@ -93,12 +94,12 @@ pub trait AudioEffect: Send + 'static {
     fn visualize(&mut self, data: AudioData) -> Vec<f32>;
 
     /// If the effect produces a color on its own, the color selector should be disabled.
-    fn visualize_with_color(&mut self, data: AudioData, color: (u8, u8, u8)) -> Frame {
+    fn transpose_animation(&mut self, data: AudioData, color: (u8, u8, u8)) -> Frame {
         let x = self.visualize(data);
         let transposed = transpose(x.as_slice(), color);
 
         Frame {
-            data: transposed,
+            data: Some(transposed),
             view: Some(ViewFrame {
                 effect: x,
                 color,
@@ -106,13 +107,10 @@ pub trait AudioEffect: Send + 'static {
         }
     }
 
-    fn name(&self) -> &'static str;
-
-    fn description(&self) -> &'static str;
-
     fn amount_melbank_bins(&self, led_amount: usize) -> usize { led_amount }
 
     fn disable_color_wheel(&self) -> bool { false }
+
 }
 
 pub struct EffectDescription {

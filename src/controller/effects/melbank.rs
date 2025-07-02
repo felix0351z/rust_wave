@@ -26,12 +26,4 @@ impl AudioEffect for MelbankEffect {
 
         buffer
     }
-
-    fn name(&self) -> &'static str {
-        "Melbank"
-    }
-
-    fn description(&self) -> &'static str {
-        ""
-    }
 }

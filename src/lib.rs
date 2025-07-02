@@ -8,6 +8,7 @@ use thiserror::Error;
 use log::info;
 use crate::controller::channel::{Receiver, ViewFrame};
 use crate::controller::effects::{AudioEffect, EffectDescription};
+use crate::controller::effects::fft::FftEffect;
 use crate::controller::effects::melbank::MelbankEffect;
 use crate::controller::effects::shine::ShineEffect;
 use crate::controller::effects::spectrum::SpectrumEffect;
@@ -64,6 +65,7 @@ impl Controller {
             "Melbank" => MelbankEffect::new,
             "Spectrum" => SpectrumEffect::new,
             "Shine" => ShineEffect::new,
+            "FFT (View Only)" => FftEffect::new
         };
 
         Controller {

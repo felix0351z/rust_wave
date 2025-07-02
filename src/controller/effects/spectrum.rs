@@ -29,14 +29,6 @@ impl AudioEffect for SpectrumEffect {
         out
     }
 
-    fn name(&self) -> &'static str {
-        "Spectrum"
-    }
-
-    fn description(&self) -> &'static str {
-        ""
-    }
-
     fn amount_melbank_bins(&self, amount_led_bins: usize) -> usize {
         amount_led_bins/2
     }

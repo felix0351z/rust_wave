@@ -2,7 +2,7 @@ use std::sync::mpsc;
 use std::sync::mpsc::channel;
 
 pub struct Frame {
-    pub data: Vec<u8>,
+    pub data: Option<Vec<u8>>,
     pub view: Option<ViewFrame>
 }
 
@@ -33,7 +33,9 @@ pub struct Sender {
 
 impl Sender {
     pub fn send(&mut self, frame: Frame) {
-        self.tx_sacn.send(frame.data).expect("gffgdfgf");
+        if let Some(data) = frame.data {
+            self.tx_sacn.send(data).expect("gffgdfgf");
+        }
 
         if let Some(view) = frame.view {
             self.tx_view.send(view).expect("gffgdfgf");

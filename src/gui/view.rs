@@ -1,10 +1,10 @@
-use std::fmt::Debug;
-use eframe::{App, Frame};
-use eframe::emath::Vec2b;
-use egui::{Color32, Context, InnerResponse, Ui};
-use egui_plot::{Line, PlotBounds};
-use strum::IntoEnumIterator;
 use crate::gui::view_model::AudioVisualizerViewModel;
+use eframe::emath::Vec2b;
+use eframe::{App, Frame};
+use egui::{Context, InnerResponse, Ui};
+use egui_plot::Line;
+use std::fmt::Debug;
+use strum::IntoEnumIterator;
 
 /// The App
 pub struct AudioVisualizerView {
@@ -48,11 +48,11 @@ impl AudioVisualizerView {
             .allow_zoom(Vec2b::new(false, true))
             .show(ui, |plot_ui| {
 
-                if let Some((points, color)) = update {
-                    plot_ui.set_plot_bounds(PlotBounds::from_min_max([0.0, 0.0], [self.vm.settings.n_bins as f64, 1.0]));
+                if let Some(update) = update {
+                    plot_ui.set_plot_bounds(update.bounds);
 
                     //  Draw the effect
-                    let line = Line::new(points).color(color);
+                    let line = Line::new(update.points).color(update.color);
                     plot_ui.line(line);
                 }
             });
@@ -66,7 +66,6 @@ impl AudioVisualizerView {
                 grid_audio_source(ui, &mut self.vm);
             });
         });
-
     }
 }
 
@@ -123,6 +122,10 @@ fn grid_audio_source(ui: &mut Ui, vm: &mut AudioVisualizerViewModel) {
                 }
             }
         });
+    ui.end_row();
+
+    ui.label("Logarithmic Scale");
+    ui.checkbox(&mut vm.use_logarithmic_scale, "");
     ui.end_row();
 
     ui.label("Amount Bins");

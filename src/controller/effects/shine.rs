@@ -1,9 +1,8 @@
-use std::arch::x86_64::_andn_u64;
+use crate::controller::channel::{Frame, ViewFrame};
 use crate::controller::dsp::apply_mel_matrix;
 use crate::controller::dsp::detection::PeakDetector;
 use crate::controller::effects::{apply_gain_filter, apply_smoothing_filter, AudioData, AudioEffect, Color, GainFilter, SmoothingFilter};
 use crate::controller::math::transpose;
-use crate::controller::channel::{Frame, ViewFrame};
 
 pub struct ShineEffect {
     gain_filter: GainFilter,
@@ -102,7 +101,7 @@ impl AudioEffect for ShineEffect {
         main_animation
     }
 
-    fn visualize_with_color(&mut self, data: AudioData, _color: (u8, u8, u8)) -> Frame {
+    fn transpose_animation(&mut self, data: AudioData, _color: (u8, u8, u8)) -> Frame {
         let animation = self.visualize(data);
 
         // Update the color
@@ -111,20 +110,12 @@ impl AudioEffect for ShineEffect {
         let transposed = transpose(animation.as_slice(), color);
 
         Frame {
-            data: transposed,
+            data: Some(transposed),
             view: Some(ViewFrame {
                 effect: animation,
                 color,
             }),
         }
-    }
-
-    fn name(&self) -> &'static str {
-        "Shine"
-    }
-
-    fn description(&self) -> &'static str {
-        ""
     }
 
     fn amount_melbank_bins(&self, amount_led_bins: usize) -> usize {

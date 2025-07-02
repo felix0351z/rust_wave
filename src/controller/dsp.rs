@@ -71,7 +71,7 @@ pub fn tick(data: &[f32], buffer: Buffer) {
         };
 
         let color = buffer.color.rgb();
-        let out = buffer.effect.visualize_with_color(data, color);
+        let out = buffer.effect.transpose_animation(data, color);
 
         // Send the data
         buffer.sender.send(out);
