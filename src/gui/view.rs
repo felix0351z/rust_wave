@@ -1,10 +1,14 @@
+pub mod color_slider;
+
 use crate::gui::view_model::AudioVisualizerViewModel;
 use eframe::emath::Vec2b;
 use eframe::{App, Frame};
-use egui::{Context, InnerResponse, Ui};
+use egui::{remap_clamp, Color32, Context, InnerResponse, Ui};
 use egui_plot::Line;
 use std::fmt::Debug;
+use egui::ecolor::Hsva;
 use strum::IntoEnumIterator;
+use crate::gui::view::color_slider::{color_slider};
 
 /// The App
 pub struct AudioVisualizerView {
@@ -52,7 +56,7 @@ impl AudioVisualizerView {
                     plot_ui.set_plot_bounds(update.bounds);
 
                     //  Draw the effect
-                    let line = Line::new(update.points).color(update.color);
+                    let line = Line::new("", update.points).color(update.color);
                     plot_ui.line(line);
                 }
             });
@@ -144,13 +148,32 @@ fn grid_audio_source(ui: &mut Ui, vm: &mut AudioVisualizerViewModel) {
     if ui.add(egui::Slider::new(&mut vm.settings.max_frequency, 100..=20000)).dragged() {
         vm.click_update_settings();
     }
-
     ui.end_row();
 
-    ui.label("Color");
-    if ui.color_edit_button_srgb(&mut vm.color).changed() {
+
+    ui.label("Hue");
+    let (_, hue_changed) = color_slider(ui, "Hue_Slider", &mut vm.color.hue, 0..=360, |value| {
+        let hsv = Hsva { h: value, s: 1.0, v: 1.0, a: 1.0, };
+        Color32::from(hsv)
+    });
+    ui.end_row();
+
+    ui.label("Saturation");
+    let (_, sat_changed) = color_slider(ui, "Saturation_Slider", &mut vm.color.saturation, 0..=255, |value| {
+        let hue = remap_clamp(
+            vm.color.hue as f32,
+            0f32..=360f32,
+            0f32..=1f32
+        );
+
+        let hsv = Hsva { h: hue, s: value, v: 1.0, a: 1.0, };
+        Color32::from(hsv)
+    });
+
+    if hue_changed || sat_changed {
         vm.click_update_color()
-    };
+    }
+
     ui.end_row();
 
 

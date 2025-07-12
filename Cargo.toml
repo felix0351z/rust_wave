@@ -1,13 +1,13 @@
 [package]
 name = "audio_visualizer"
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
 
 [dependencies]
 cpal = "0.15.3"
-egui = "0.30.0"
-eframe = "0.30.0"
-egui_plot = "0.30.0"
+egui = "0.32.0"
+eframe = "0.32.0"
+egui_plot = "0.33.0"
 env_logger = "0.11.5"
 thiserror = "2.0.3"
 
@@ -17,3 +17,4 @@ hann-rs = "0.1.0"
 strum_macros = "0.27.1"
 log = "0.4.22"
 strum = "0.27.1"
+num-traits = "0.2.19"
