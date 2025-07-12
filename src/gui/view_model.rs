@@ -23,7 +23,6 @@ pub struct AudioVisualizerViewModel {
     pub use_logarithmic_scale: bool,
     pub settings: GeneralSettings,
     pub color: ColorState,
-    pub hue: f32,
 }
 
 pub struct PlotUpdate<'a> {
@@ -32,20 +31,10 @@ pub struct PlotUpdate<'a> {
     pub bounds: PlotBounds,
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Default)]
 pub struct ColorState {
     pub hue: u16,
     pub saturation: u16,
-}
-
-impl Default for ColorState {
-    fn default() -> Self {
-        ColorState {
-            hue: 0,
-            saturation: 0,
-        }
-    }
-
 }
 
 impl AudioVisualizerViewModel {
@@ -73,8 +62,7 @@ impl AudioVisualizerViewModel {
             selected_effect: 0,
             use_logarithmic_scale: false,
             settings,
-            color: ColorState::default(),
-            hue: 0.0
+            color: ColorState::default()
         }
     }
 
