@@ -2,13 +2,12 @@ use gui::view::{AudioVisualizerView};
 
 mod gui;
 
-///TODO: FFT als Effekte registrieren, anstatt in UI versuchen zu implementieren
 //TODO: Farbauswahl Menü / Vorgefertigte Farben
 //TODO: Zusätzliche Filter Parameter zur GUI hinzufügen => Evtl. Filter anpassen auf mutability
 //TODO: Presets um die Einstellungen passend zu Bass, Sprache etc. anzupassen
+//TODO: Letzte Animationen übernehmen aus Python
 
 pub const APP_NAME: &'static str = "Audio Visualizer";
-pub const LED_SIZE: u8 = 60;
 
 fn main() {
     env_logger::init();

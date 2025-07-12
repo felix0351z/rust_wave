@@ -2,9 +2,10 @@ use audio_visualizer::controller::channel::ViewFrame;
 use audio_visualizer::controller::stream::Settings;
 use audio_visualizer::{Controller, InputDevice};
 use cpal::HostId;
-use egui::Color32;
+use egui::{remap_clamp, Color32};
 use egui_plot::{PlotBounds, PlotPoints};
 use std::sync::mpsc::Receiver;
+use egui::ecolor::Hsva;
 
 type GeneralSettings = Settings;
 type DataReceiver = Receiver<ViewFrame>;
@@ -21,13 +22,30 @@ pub struct AudioVisualizerViewModel {
     pub selected_effect: usize,
     pub use_logarithmic_scale: bool,
     pub settings: GeneralSettings,
-    pub color: [u8; 3],
+    pub color: ColorState,
+    pub hue: f32,
 }
 
-pub struct PlotUpdate {
-    pub points: PlotPoints,
+pub struct PlotUpdate<'a> {
+    pub points: PlotPoints<'a>,
     pub color: Color32,
     pub bounds: PlotBounds,
+}
+
+#[derive(Clone, Copy)]
+pub struct ColorState {
+    pub hue: u16,
+    pub saturation: u16,
+}
+
+impl Default for ColorState {
+    fn default() -> Self {
+        ColorState {
+            hue: 0,
+            saturation: 0,
+        }
+    }
+
 }
 
 impl AudioVisualizerViewModel {
@@ -55,7 +73,8 @@ impl AudioVisualizerViewModel {
             selected_effect: 0,
             use_logarithmic_scale: false,
             settings,
-            color: [255, 255, 255],
+            color: ColorState::default(),
+            hue: 0.0
         }
     }
 
@@ -100,7 +119,19 @@ impl AudioVisualizerViewModel {
     }
 
     pub fn click_update_color(&mut self) {
-        self.controller.update_color(self.color)
+        let hue = remap_clamp(
+            self.color.hue as f32,
+            0f32..=360f32,
+            0f32..=1f32
+        );
+        let sat = remap_clamp(
+            self.color.saturation as f32,
+            0f32..=255f32,
+            0f32..=1f32
+        );
+
+        let color = Color32::from(Hsva { h: hue, s: sat, v: 1.0, a: 1.0, });
+        self.controller.update_color((color.r(), color.g(), color.b()))
     }
 
     pub fn click_update_settings(&mut self) {
@@ -135,11 +166,11 @@ impl AudioVisualizerViewModel {
 }
 
 trait MapToPlotPoints {
-    fn to_plot_points(self, logarithmic_scale: bool) -> PlotPoints;
+    fn to_plot_points(self, logarithmic_scale: bool) -> PlotPoints<'static>;
 }
 
 impl MapToPlotPoints for Vec<f32> {
-    fn to_plot_points(self, logarithmic_scale: bool) -> PlotPoints {
+    fn to_plot_points(self, logarithmic_scale: bool) -> PlotPoints<'static> {
         // Map the values to a list of plot points
         // Use the iterator as x and the vec as y
         (0..self.len())
