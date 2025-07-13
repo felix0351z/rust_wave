@@ -198,7 +198,7 @@ impl Controller {
         self.stream_handler.update_settings(settings)
     }
 
-    pub fn update_color(&mut self, color: (u8, u8, u8)) {
+    pub fn update_color(&mut self, color: [u8; 3]) {
         self.stream_handler.update_color(color)
     }
 

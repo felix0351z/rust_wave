@@ -13,8 +13,7 @@ pub struct ShineEffect {
 
 const SHINE_FREQ: (f32, f32) = (0.0, 200.0);
 const SHINE_SMOOTHING: (f32, f32) = (0.8, 0.15);
-const MAIN_COLOR: (u8, u8, u8) = (0, 100, 255);
-const SHINE_COLOR: (u8, u8, u8) = (255, 255, 255);
+const SHINE_COLOR: [u8; 3] = [255; 3];
 const TRANSITION_TIME: u8 = 3;
 
 impl ShineEffect {
@@ -25,7 +24,7 @@ impl ShineEffect {
             0.0001,
             (SHINE_SMOOTHING.0, SHINE_SMOOTHING.1),
         );
-        let color = Color::new(MAIN_COLOR);
+        let color = Color::new(SHINE_COLOR);
 
         let mut shine_effect = ShineEffect {
             gain_filter: GainFilter::gain_settings(),
@@ -65,14 +64,14 @@ impl ShineEffect {
 
         // Update if a peak started, or ended
         if let Some(peak_update) = peak_update {
-            self.peak_changed(peak_update)
+            self.peak_changed(data.color, peak_update)
         }
 
         out
     }
 
-    fn peak_changed(&mut self, started: bool) {
-        let color = if started { SHINE_COLOR } else { MAIN_COLOR };
+    fn peak_changed(&mut self, default_color: [u8; 3],  started: bool) {
+        let color = if started { SHINE_COLOR } else { default_color };
         let time = if started { TRANSITION_TIME*2 } else { TRANSITION_TIME };
 
         self.color.change_color(color);
@@ -101,7 +100,7 @@ impl AudioEffect for ShineEffect {
         main_animation
     }
 
-    fn transpose_animation(&mut self, data: AudioData, _color: (u8, u8, u8)) -> Frame {
+    fn transpose_animation(&mut self, data: AudioData) -> Frame {
         let animation = self.visualize(data);
 
         // Update the color

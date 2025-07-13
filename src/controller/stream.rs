@@ -34,7 +34,7 @@ pub struct InnerStream {
     pub settings: Settings,
     pub sample_rate: u32,
     pub sender: Sender,
-    pub color: Color,
+    pub color: [u8; 3],
     pub effect: Box<dyn AudioEffect>,
 }
 
@@ -70,7 +70,7 @@ impl Stream {
                 settings,
                 sample_rate: config.sample_rate.0,
                 sender: tx,
-                color: Color::white(),
+                color: [255u8; 3],
                 effect
             }
         ));
@@ -104,12 +104,12 @@ impl Stream {
 
     /// Update the color of the effect.
     /// If the effect produces his own color, these change will have no effect.
-    pub fn update_color(&mut self, rgb: (u8, u8, u8)) {
+    pub fn update_color(&mut self, rgb: [u8; 3]) {
         // Try to access the stream and lock the buffer
         if let Some(buffer) = self.buffer.as_deref() {
             if let Ok(mut buffer) = buffer.lock() {
                 // Update the color, if available
-                buffer.color.change_color(rgb)
+                buffer.color = rgb;
             }
         }
     }

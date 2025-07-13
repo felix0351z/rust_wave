@@ -23,7 +23,8 @@ impl AudioEffect for FftEffect {
         buffer
     }
 
-    fn transpose_animation(&mut self, data: AudioData, color: (u8, u8, u8)) -> Frame {
+    fn transpose_animation(&mut self, data: AudioData) -> Frame {
+        let color = data.color;
         let effect = self.visualize(data);
 
         Frame {

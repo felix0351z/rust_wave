@@ -8,7 +8,7 @@ pub struct Frame {
 
 pub struct ViewFrame {
     pub effect: Vec<f32>,
-    pub color: (u8, u8, u8)
+    pub color: [u8; 3],
 }
 
 pub fn new() -> (Sender, Receiver) {

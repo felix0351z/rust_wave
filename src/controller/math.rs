@@ -30,15 +30,15 @@ pub fn linspace(x0: f32, xend: f32, n: usize) -> Vec<f32> {
     out
 }
 
-pub(crate) fn transpose(x: &[f32], color: (u8, u8, u8)) -> Vec<u8> {
+pub(crate) fn transpose(x: &[f32], color: [u8; 3]) -> Vec<u8> {
     let mut out = vec![0u8; x.len()*3+1];
     out[0] = 0u8;
 
     let mut idx_output = 1;
     for i in 1..x.len() {
-        out[idx_output] = (x[i] * color.0 as f32).round() as u8;
-        out[idx_output+1] = (x[i] * color.1 as f32).round() as u8;
-        out[idx_output+2] = (x[i] * color.2 as f32).round() as u8;
+        out[idx_output] = (x[i] * color[0] as f32).round() as u8;
+        out[idx_output+1] = (x[i] * color[1] as f32).round() as u8;
+        out[idx_output+2] = (x[i] * color[2] as f32).round() as u8;
         idx_output += 3;
     }
 

@@ -68,10 +68,10 @@ pub fn tick(data: &[f32], buffer: Buffer) {
             raw_data: filtered.as_slice(),
             settings: buffer.settings,
             sample_rate: buffer.sample_rate,
+            color: buffer.color
         };
 
-        let color = buffer.color.rgb();
-        let out = buffer.effect.transpose_animation(data, color);
+        let out = buffer.effect.transpose_animation(data);
 
         // Send the data
         buffer.sender.send(out);

@@ -119,7 +119,8 @@ impl AudioVisualizerViewModel {
         );
 
         let color = Color32::from(Hsva { h: hue, s: sat, v: 1.0, a: 1.0, });
-        self.controller.update_color((color.r(), color.g(), color.b()))
+        let rgb = [color.r(), color.g(), color.b()];
+        self.controller.update_color(rgb)
     }
 
     pub fn click_update_settings(&mut self) {
@@ -133,7 +134,7 @@ impl AudioVisualizerViewModel {
     pub fn receive_plot_update(&self) -> Option<PlotUpdate> {
         // Receive data
         if let Ok(frame) = self.receiver.try_recv() {
-            let color = Color32::from_rgb(frame.color.0, frame.color.1, frame.color.2);
+            let color = Color32::from_rgb(frame.color[0], frame.color[1], frame.color[2]);
             let points = frame.effect.to_plot_points(self.use_logarithmic_scale);
 
             let point_len = points.points().len() as f64;
