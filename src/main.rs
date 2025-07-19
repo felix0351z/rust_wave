@@ -2,10 +2,9 @@ use gui::view::{AudioVisualizerView};
 
 mod gui;
 
-//TODO: Farbauswahl Menü / Vorgefertigte Farben
-//TODO: Zusätzliche Filter Parameter zur GUI hinzufügen => Evtl. Filter anpassen auf mutability
-//TODO: Presets um die Einstellungen passend zu Bass, Sprache etc. anzupassen
 //TODO: Letzte Animationen übernehmen aus Python
+//TODO: Shine Effekt mit Color schon vor dem überlappen testen
+//TODO: API refactoring
 
 pub const APP_NAME: &'static str = "Audio Visualizer";
 

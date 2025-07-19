@@ -44,3 +44,14 @@ pub(crate) fn transpose(x: &[f32], color: [u8; 3]) -> Vec<u8> {
 
     out
 }
+
+pub trait Flip {
+    fn clone_flip(&self) -> Self;
+}
+
+impl<T: Clone + Sized> Flip for Vec<T> {
+    fn clone_flip(&self) -> Self {
+        Vec::from_iter(self.into_iter().cloned().rev())
+    }
+}
+

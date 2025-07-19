@@ -64,7 +64,7 @@ impl ExponentialFilter<Vec<f32>> {
         Self {
             last: vec![0.0; FPS],
             alpha_rise: 0.99,
-            alpha_decay: 0.1,
+            alpha_decay: 0.05,
         }
     }
 }
