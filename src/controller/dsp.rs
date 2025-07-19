@@ -65,7 +65,7 @@ pub fn tick(data: &[f32], buffer: Buffer) {
         let data = AudioData {
             melbank: melbank.as_slice(),
             power_spectrum: power_frames.as_slice(),
-            raw_data: filtered.as_slice(),
+            raw_data: input.as_slice(),
             settings: buffer.settings,
             sample_rate: buffer.sample_rate,
             color: buffer.color

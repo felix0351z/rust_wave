@@ -9,6 +9,7 @@ use log::info;
 use crate::controller::channel::{Receiver, ViewFrame};
 use crate::controller::effects::{AudioEffect, EffectDescription};
 use crate::controller::effects::color_spectrum::ColorSpectrumEffect;
+use crate::controller::effects::energy::EnergyEffect;
 use crate::controller::effects::fft::FftEffect;
 use crate::controller::effects::melbank::MelbankEffect;
 use crate::controller::effects::shine::ShineEffect;
@@ -66,6 +67,7 @@ impl Controller {
             "Melbank" => MelbankEffect::new,
             "Spectrum" => SpectrumEffect::new,
             "Shine" => ShineEffect::new,
+            "Energy" => EnergyEffect::new,
             "Color Spectrum (Data Only)" => ColorSpectrumEffect::new,
             "FFT (View Only)" => FftEffect::new
         };

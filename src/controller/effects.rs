@@ -8,6 +8,7 @@ pub mod spectrum;
 pub mod shine;
 pub mod fft;
 pub mod color_spectrum;
+pub mod energy;
 
 type GainFilter = ExponentialFilter<f32>;
 type SmoothingFilter = ExponentialFilter<Vec<f32>>;
