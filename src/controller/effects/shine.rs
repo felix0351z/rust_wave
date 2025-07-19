@@ -2,7 +2,7 @@ use crate::controller::channel::{Frame, ViewFrame};
 use crate::controller::dsp::apply_mel_matrix;
 use crate::controller::dsp::detection::PeakDetector;
 use crate::controller::effects::{apply_gain_filter, apply_smoothing_filter, AudioData, AudioEffect, Color, GainFilter, SmoothingFilter};
-use crate::controller::math::transpose;
+use crate::controller::math::{transpose, Flip};
 
 pub struct ShineEffect {
     gain_filter: GainFilter,
@@ -12,7 +12,7 @@ pub struct ShineEffect {
 }
 
 const SHINE_FREQ: (f32, f32) = (0.0, 200.0);
-const SHINE_SMOOTHING: (f32, f32) = (0.8, 0.15);
+const SHINE_SMOOTHING: (f32, f32) = (0.8, 0.1);
 const SHINE_COLOR: [u8; 3] = [255; 3];
 const TRANSITION_TIME: u8 = 3;
 
@@ -46,10 +46,7 @@ impl ShineEffect {
         apply_smoothing_filter(&mut buffer, &mut self.smooth_filter);
 
         // Reflect the signal in the middle
-        let mut out = Vec::from_iter(buffer.iter().cloned().rev());
-        out.append(&mut buffer);
-
-        out
+        [buffer.clone_flip(), buffer].concat()
     }
 
     fn build_shine_animation(&mut self, data: &AudioData) -> Vec<f32> {
@@ -76,7 +73,6 @@ impl ShineEffect {
 
         self.color.change_color(color);
         self.color.change_transition_time(time)
-
     }
 
 
