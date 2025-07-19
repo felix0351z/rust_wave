@@ -151,6 +151,9 @@ fn grid_audio_source(ui: &mut Ui, vm: &mut AudioVisualizerViewModel) {
     ui.end_row();
 
 
+    if !vm.color_selection_enabled {
+        ui.disable()
+    }
     ui.label("Hue");
     let (_, hue_changed) = color_slider(ui, "Hue_Slider", &mut vm.color.hue, 0..=360, |value| {
         let hsv = Hsva { h: value, s: 1.0, v: 1.0, a: 1.0, };
@@ -173,7 +176,6 @@ fn grid_audio_source(ui: &mut Ui, vm: &mut AudioVisualizerViewModel) {
     if hue_changed || sat_changed {
         vm.click_update_color()
     }
-
     ui.end_row();
 
 

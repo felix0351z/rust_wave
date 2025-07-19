@@ -45,6 +45,22 @@ pub(crate) fn transpose(x: &[f32], color: [u8; 3]) -> Vec<u8> {
     out
 }
 
+pub fn gaussian_curve(len: usize, std: f32) -> Vec<f32> {
+    let mut curve = Vec::with_capacity(len);
+    let m = len as f32 - 1.0 ;
+
+    let center = m / 2.0;
+    let sigma2 = 2.0 * std * std;
+
+    for i in 0..len {
+        let x = i as f32;
+        let exponent = -((x - center).powi(2)) / sigma2;
+        curve.push(f32::exp(exponent));
+    }
+
+    curve
+}
+
 pub trait Flip {
     fn clone_flip(&self) -> Self;
 }

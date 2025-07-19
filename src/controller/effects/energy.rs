@@ -1,6 +1,7 @@
 use crate::controller::dsp::smoothing::ExponentialFilter;
 use crate::controller::effects::{AudioData, AudioEffect, GainFilter};
 use num_traits::Pow;
+use crate::controller::math::gaussian_curve;
 
 const GAIN_RISE: f32 = 0.9;
 const GAIN_DECAY: f32 = 0.001;
@@ -34,22 +35,6 @@ impl EnergyEffect {
 
         self.smoothing_filter.update(rms)
     }
-
-    fn gaussian_curve(len: usize, std: f32) -> Vec<f32> {
-        let mut curve = Vec::with_capacity(len);
-        let m = len as f32 - 1.0 ;
-
-        let center = m / 2.0;
-        let sigma2 = 2.0 * std * std;
-
-        for i in 0..len {
-            let x = i as f32;
-            let exponent = -((x - center).powi(2)) / sigma2;
-            curve.push(f32::exp(exponent));
-        }
-
-        curve
-    }
     
     
 }
@@ -58,7 +43,7 @@ impl AudioEffect for EnergyEffect {
 
     fn visualize(&mut self, data: AudioData) -> Vec<f32> {
         let len = data.melbank.len();
-        let mut gaussian = Self::gaussian_curve(len, STANDARD_DEVIATION);
+        let mut gaussian = gaussian_curve(len, STANDARD_DEVIATION);
         let smoothed_rms = self.smoothed_rms(data);
 
         // Apply the rms to the gaussian curve

@@ -23,6 +23,7 @@ pub struct AudioVisualizerViewModel {
     pub use_logarithmic_scale: bool,
     pub settings: GeneralSettings,
     pub color: ColorState,
+    pub color_selection_enabled: bool,
 }
 
 pub struct PlotUpdate<'a> {
@@ -62,7 +63,8 @@ impl AudioVisualizerViewModel {
             selected_effect: 0,
             use_logarithmic_scale: false,
             settings,
-            color: ColorState::default()
+            color: ColorState::default(),
+            color_selection_enabled: true
         }
     }
 
@@ -128,7 +130,11 @@ impl AudioVisualizerViewModel {
     }
 
     pub fn click_update_effect(&mut self) {
-        self.controller.update_effect(self.effects[self.selected_effect])
+        self.controller.update_effect(self.effects[self.selected_effect]);
+
+        if let Ok(color_selection_available) = self.controller.is_color_selection_available() {
+            self.color_selection_enabled = color_selection_available;
+        }
     }
 
     pub fn receive_plot_update(&self) -> Option<PlotUpdate> {

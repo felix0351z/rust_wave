@@ -12,6 +12,7 @@ use log::{debug, error};
 use crate::controller::channel::{Receiver, Sender};
 use crate::controller::effects::shine::ShineEffect;
 use crate::controller::effects::spectrum::SpectrumEffect;
+use crate::ControllerError;
 
 #[derive(Debug, Copy, Clone)]
 pub struct Settings {
@@ -122,6 +123,15 @@ impl Stream {
                 buffer.effect = effect;
             }
         }
+    }
+
+    pub fn is_color_selection_available(&self) -> crate::Result<bool> {
+        let guard = self.buffer.as_deref()
+            .ok_or(ControllerError::NoStream)?
+            .lock()
+            .unwrap();
+
+        Ok(!guard.effect.disable_color_wheel())
     }
 
 }

@@ -8,6 +8,7 @@ use thiserror::Error;
 use log::info;
 use crate::controller::channel::{Receiver, ViewFrame};
 use crate::controller::effects::{AudioEffect, EffectDescription};
+use crate::controller::effects::bass::BassEffect;
 use crate::controller::effects::color_spectrum::ColorSpectrumEffect;
 use crate::controller::effects::energy::EnergyEffect;
 use crate::controller::effects::fft::FftEffect;
@@ -24,7 +25,7 @@ mod tests;
 pub const FPS: usize = 100;
 
 // Help to declare all method results with the ControllerError Type
-type Result<T> = std::result::Result<T, ControllerError>;
+pub type Result<T> = std::result::Result<T, ControllerError>;
 
 // The main controller of the program
 pub struct Controller {
@@ -49,7 +50,9 @@ pub enum  ControllerError {
     #[error("No supported audio callback config")]
     NoSupportedConfig,
     #[error("The given ID is not available")]
-    NoValidId
+    NoValidId,
+    #[error("No Stream created yet")]
+    NoStream
 }
 
 #[derive(Clone)]
@@ -68,6 +71,7 @@ impl Controller {
             "Spectrum" => SpectrumEffect::new,
             "Shine" => ShineEffect::new,
             "Energy" => EnergyEffect::new,
+            "Bass" => BassEffect::new,
             "Color Spectrum (Data Only)" => ColorSpectrumEffect::new,
             "FFT (View Only)" => FftEffect::new
         };
@@ -204,6 +208,10 @@ impl Controller {
 
     pub fn update_color(&mut self, color: [u8; 3]) {
         self.stream_handler.update_color(color)
+    }
+
+    pub fn is_color_selection_available(&self) -> crate::Result<bool> {
+        self.stream_handler.is_color_selection_available()
     }
 
 
