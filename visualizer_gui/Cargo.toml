@@ -1,0 +1,12 @@
+[package]
+name = "visualizer_gui"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+visualizer_core = { path = "../visualizer_core" }
+
+egui = "0.32.0"
+eframe = "0.32.0"
+egui_plot = "0.33.0"
+env_logger = "0.11.5"

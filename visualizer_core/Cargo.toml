@@ -1,0 +1,13 @@
+[package]
+name = "visualizer_core"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+cpal = "0.15.3"
+sacn = "0.10.0"
+realfft = "3.4.0"
+hann-rs = "0.1.0"
+log = "0.4.22"
+num-traits = "0.2.19"
+thiserror = "2.0.3"
