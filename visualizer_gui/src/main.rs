@@ -2,8 +2,6 @@ use gui::view::{AudioVisualizerView};
 
 mod gui;
 
-//TODO: Letzte Animationen übernehmen aus Python
-//TODO: Shine Effekt mit Color schon vor dem überlappen testen
 //TODO: API refactoring
 
 pub const APP_NAME: &'static str = "Audio Visualizer";

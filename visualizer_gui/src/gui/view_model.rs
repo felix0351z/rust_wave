@@ -1,27 +1,23 @@
-use audio_visualizer::controller::channel::ViewFrame;
-use audio_visualizer::controller::stream::Settings;
-use audio_visualizer::{Controller, InputDevice};
-use cpal::HostId;
-use egui::{remap_clamp, Color32};
-use egui_plot::{PlotBounds, PlotPoints};
 use std::sync::mpsc::Receiver;
+use egui::{remap_clamp, Color32};
 use egui::ecolor::Hsva;
+use egui_plot::{PlotBounds, PlotPoints};
 
-type GeneralSettings = Settings;
-type DataReceiver = Receiver<ViewFrame>;
+use visualizer_core::{Controller, InputDevice, HostId, Settings, StreamFrame};
+
 
 pub struct AudioVisualizerViewModel {
     controller: Controller,
     hosts: Vec<HostId>,
     devices: Vec<InputDevice>,
     effects: Vec<&'static str>,
-    receiver: DataReceiver,
+    receiver: Receiver<StreamFrame>,
 
     pub selected_host: usize,
     pub selected_device: usize,
     pub selected_effect: usize,
     pub use_logarithmic_scale: bool,
-    pub settings: GeneralSettings,
+    pub settings: Settings,
     pub color: ColorState,
     pub color_selection_enabled: bool,
 }
@@ -93,14 +89,14 @@ impl AudioVisualizerViewModel {
     }
 
     pub fn click_update_host(&mut self, host: &HostId) {
-        //Update controller if the host was clicked and load new input devices
+        //Update lib if the host was clicked and load new input devices
         self.controller.update_host(*host).unwrap();
         self.devices = self.controller.get_available_input_devices().unwrap();
         self.selected_device = 0;
     }
 
     pub fn click_update_controller(&mut self, device: &InputDevice) {
-        // Update the device inside the controller and update the stream
+        // Update the device inside the lib and update the stream
 
         self.controller.update_device(device.id).unwrap();
         if let Ok(rx) = self.controller.update_stream(self.effects[self.selected_effect], self.settings) {

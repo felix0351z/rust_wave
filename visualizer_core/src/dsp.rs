@@ -1,17 +1,23 @@
-pub mod melbank;
-pub mod smoothing;
-pub mod detection;
-
 use std::sync::{Arc, Mutex};
-use crate::controller::stream;
-use crate::controller::effects::AudioData;
-use crate::controller::math::array_product;
 
 use hann_rs::get_hann_window;
 use realfft::num_traits::{Pow};
 use realfft::RealFftPlanner;
 
-type StreamSettings = stream::Settings;
+use super::stream;
+use super::effects::AudioData;
+use super::math::array_product;
+
+// Modules
+mod melbank;
+mod smoothing;
+mod detection;
+
+// Re-export all utilities for the effects
+pub use melbank::compute_mel_matrix;
+pub use smoothing::ExponentialFilter;
+pub use detection::PeakDetector;
+
 type Buffer = Arc<Mutex<stream::InnerStream>>;
 
 /// Entry point for the raw input signal from the sound card

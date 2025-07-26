@@ -1,15 +1,25 @@
-use crate::controller::channel::{Frame, ViewFrame};
-use crate::controller::dsp::smoothing::ExponentialFilter;
-use crate::controller::math::transpose;
-use crate::controller::stream::Settings;
+use super::stream::channel::{Frame, ViewFrame};
+use super::stream::Settings;
+use super::dsp::ExponentialFilter;
+use super::math::transpose;
 
-pub mod melbank;
-pub mod spectrum;
-pub mod shine;
-pub mod fft;
-pub mod color_spectrum;
-pub mod energy;
-pub mod bass;
+// All effects
+mod melbank;
+mod spectrum;
+mod shine;
+mod fft;
+mod color_spectrum;
+mod energy;
+mod bass;
+
+// Re-export all the effects
+pub use melbank::MelbankEffect;
+pub use spectrum::SpectrumEffect;
+pub use shine::ShineEffect;
+pub use fft::FftEffect;
+pub use color_spectrum::ColorSpectrumEffect;
+pub use energy::EnergyEffect;
+pub use bass::BassEffect;
 
 type GainFilter = ExponentialFilter<f32>;
 type SmoothingFilter = ExponentialFilter<Vec<f32>>;
@@ -49,8 +59,6 @@ impl Color {
             transition_color: None,
         }
     }
-
-    pub fn white() -> Self { Self::new([255; 3]) }
 
     /// Get the current color in the RGB-Format
     pub fn rgb(&mut self) ->[u8; 3] {

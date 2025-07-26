@@ -1,7 +1,9 @@
-use crate::controller::dsp::smoothing::ExponentialFilter;
-use crate::controller::effects::{AudioData, AudioEffect, GainFilter};
+use super::*;
+use crate::dsp::ExponentialFilter;
+use crate::math::gaussian_curve;
+
 use num_traits::Pow;
-use crate::controller::math::gaussian_curve;
+
 
 const GAIN_RISE: f32 = 0.9;
 const GAIN_DECAY: f32 = 0.001;

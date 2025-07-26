@@ -1,18 +1,20 @@
-use sacn::packet::ACN_SDT_MULTICAST_PORT;
-use sacn::source::SacnSource;
 use std::net::{IpAddr, SocketAddr};
 use std::sync::{Arc, Mutex};
 use std::thread;
-use log::error;
 use std::sync::mpsc::Receiver;
-use crate::ControllerError::SacnError;
+use log::error;
+
+use sacn::packet::ACN_SDT_MULTICAST_PORT;
+use sacn::source::SacnSource;
+
+use super::ControllerError::SacnError;
 
 /// Default Universe the data is to be sent on
 const UNIVERSE: u16 = 1;
 
 type Result<T> = std::result::Result<T, crate::ControllerError>;
 
-pub struct Sender {
+pub struct SacnSender {
     source: Arc<Mutex<SacnSource>>,
     universe: u16,
     /*dst_ip: Option<SocketAddr>,
@@ -20,16 +22,16 @@ pub struct Sender {
     priority: Option<u8>*/
 }
 
-impl Sender {
+impl SacnSender {
 
     /// Create a new Sacn sender with Multicast enabled.
-    pub fn new_multicast_sender() -> Sender {
+    pub fn new_multicast_sender() -> SacnSender {
         let addr = SocketAddr::new(IpAddr::V4("0.0.0.0".parse().unwrap()), ACN_SDT_MULTICAST_PORT + 1);
         let mut src = SacnSource::with_ip("Source", addr)
             .expect("Sacn source can't be bound to local ip address");
 
         src.register_universe(UNIVERSE).expect("Can't register default universe");
-        Sender {
+        SacnSender {
             source: Arc::new(Mutex::new(src)),
             universe: UNIVERSE, // Use default universe at the beginning
             /*dst_ip: None, // Set to None to use multicast

@@ -1,42 +1,44 @@
-use crate::controller::stream::{Settings, Stream};
-use crate::ControllerError::CPALError;
-use cpal::traits::{DeviceTrait, HostTrait};
-use cpal::{HostId, SampleFormat, SupportedStreamConfig};
 use std::error::Error;
-use std::ops::Deref;
-use thiserror::Error;
 use log::info;
-use crate::controller::channel::{Receiver, ViewFrame};
-use crate::controller::effects::{AudioEffect, EffectDescription};
-use crate::controller::effects::bass::BassEffect;
-use crate::controller::effects::color_spectrum::ColorSpectrumEffect;
-use crate::controller::effects::energy::EnergyEffect;
-use crate::controller::effects::fft::FftEffect;
-use crate::controller::effects::melbank::MelbankEffect;
-use crate::controller::effects::shine::ShineEffect;
-use crate::controller::effects::spectrum::SpectrumEffect;
-use crate::controller::sender::Sender;
 
-pub mod controller;
+use thiserror::Error;
+use cpal::traits::{DeviceTrait, HostTrait};
+use cpal::{SampleFormat, SupportedStreamConfig};
+
+use sender::SacnSender;
+use stream::Stream;
+use stream::channel::{Receiver, ViewFrame};
+use effects::*;
+
+mod dsp;
+mod stream;
+mod math;
+mod effects;
+mod sender;
 
 #[cfg(test)]
-mod tests;
+mod test;
+
+// Export all needed utilities
+pub use cpal::HostId;
+pub use stream::Settings;
+pub use stream::channel::ViewFrame as StreamFrame;
 
 pub const FPS: usize = 100;
 
 // Help to declare all method results with the ControllerError Type
 pub type Result<T> = std::result::Result<T, ControllerError>;
 
-// The main controller of the program
+// The main lib of the program
 pub struct Controller {
     host: Option<cpal::Host>,
     device: Option<cpal::Device>,
     stream_handler: Stream,
-    sender: Sender,
+    sender: SacnSender,
     effects: Vec<EffectDescription>
 }
 
-// All Errors which can occur during the program runtime from the controller
+// All Errors which can occur during the program runtime from the lib
 #[derive(Debug, Error)]
 pub enum  ControllerError {
 
@@ -80,7 +82,7 @@ impl Controller {
             host: None,
             device: None,
             stream_handler: Stream::new(),
-            sender: Sender::new_multicast_sender(),
+            sender: SacnSender::new_multicast_sender(),
             effects
         }
     }
@@ -99,7 +101,7 @@ impl Controller {
         println!("Select host {}", id.name());
 
         let new = cpal::host_from_id(id)
-            .map_err(|e| {CPALError(e.into())})?;
+            .map_err(|e| {ControllerError::CPALError(e.into())})?;
 
         self.host = Some(new);
         Ok(())
@@ -124,7 +126,7 @@ impl Controller {
         let devices = self.host.as_ref()
             .expect("No available host found")
             .input_devices()
-            .map_err(|e| CPALError(e.into()))?;
+            .map_err(|e| ControllerError::CPALError(e.into()))?;
 
 
         let mut out: Vec<InputDevice> = Vec::new();
@@ -144,7 +146,7 @@ impl Controller {
         let devices = self.host.as_ref()
             .expect("No available host found")
             .input_devices()
-            .map_err(|e| CPALError(e.into()))?;
+            .map_err(|e| ControllerError::CPALError(e.into()))?;
 
         let selected = devices.skip(id).next()
             .expect("");
@@ -166,7 +168,7 @@ impl Controller {
         // Check if a valid device & config are available
         let device = self.device.as_ref().ok_or(ControllerError::NoDeviceFound)?;
         let configs = device.supported_input_configs()
-            .map_err(|e| CPALError(e.into()))?;
+            .map_err(|e| ControllerError::CPALError(e.into()))?;
 
         // Only use the config with the sample format f32
         let mut config: Option<SupportedStreamConfig> = None;
@@ -189,7 +191,7 @@ impl Controller {
         if let Some(config) = config {
             // Start the stream and if an error occurs, notify the view
             let rx = self.stream_handler.open(device, config.into(), settings, built)
-                .map_err(|e| CPALError(e.into()))?;
+                .map_err(|e| ControllerError::CPALError(e.into()))?;
 
             // Start the sacn sender
             let Receiver { rx_sacn, rx_view } = rx;
@@ -210,7 +212,7 @@ impl Controller {
         self.stream_handler.update_color(color)
     }
 
-    pub fn is_color_selection_available(&self) -> crate::Result<bool> {
+    pub fn is_color_selection_available(&self) -> Result<bool> {
         self.stream_handler.is_color_selection_available()
     }
 

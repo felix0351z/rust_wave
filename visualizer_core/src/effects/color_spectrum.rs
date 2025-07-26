@@ -1,7 +1,6 @@
-use itertools::Itertools;
-use crate::controller::channel::Frame;
-use crate::controller::effects::{apply_gain_filter, apply_smoothing_filter, AudioData, AudioEffect, GainFilter, SmoothingFilter};
-use crate::controller::math::{transpose, Flip};
+use super::*;
+use crate::math::{transpose, Flip};
+use crate::stream::channel::Frame;
 
 const COLOR_LOW: [u8; 3] = [255, 0, 0];
 const COLOR_MIDDLE: [u8; 3] = [0, 255, 0];
@@ -57,7 +56,7 @@ impl ColorSpectrumEffect {
 
 
 impl AudioEffect for ColorSpectrumEffect {
-    fn visualize(&mut self, data: AudioData) -> Vec<f32> {
+    fn visualize(&mut self, _: AudioData) -> Vec<f32> {
         unimplemented!()
     }
 

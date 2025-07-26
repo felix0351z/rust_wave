@@ -1,19 +1,18 @@
-
 use realfft::num_traits::abs;
-use crate::controller::math::linspace;
+use crate::math::linspace;
 
 /// Convert the frequency in heart to the mel scale
-pub fn heart_to_mel(f: f32) -> f32 {
+fn heart_to_mel(f: f32) -> f32 {
     2595.0 * (1.0 + (f/700.0)).log10()
 }
 
 /// Convert the frequency in mel to the heart scale
-pub fn mel_to_heart(m: f32) -> f32 {
+fn mel_to_heart(m: f32) -> f32 {
     700.0 * (10.0_f32.powf(m/2595.0)  - 1.0)
 }
 
 /// Creates a list with all bins with their frequency (in mel) as their value
-pub fn get_mel_frequency_bins(n_bins: usize, min_frequency: f32, max_frequency: f32) -> Vec<f32> {
+fn get_mel_frequency_bins(n_bins: usize, min_frequency: f32, max_frequency: f32) -> Vec<f32> {
     // Get the min and max frequency in the mel scale
     let min = heart_to_mel(min_frequency);
     let max = heart_to_mel(max_frequency);

@@ -1,4 +1,4 @@
-use crate::controller::dsp::smoothing::ExponentialFilter;
+use super::smoothing::ExponentialFilter;
 
 
 pub struct PeakDetector {

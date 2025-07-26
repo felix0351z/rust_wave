@@ -1,7 +1,6 @@
-use crate::controller::dsp::apply_mel_matrix;
-use crate::controller::dsp::detection::PeakDetector;
-use crate::controller::effects::{AudioData, AudioEffect, GainFilter, SmoothingFilter};
-use crate::controller::math::gaussian_curve;
+use super::*;
+use crate::dsp::{PeakDetector, apply_mel_matrix};
+use crate::math::gaussian_curve;
 
 const ACCURACY: f32 = 0.1;
 const SENSITIVITY: f32 = 1.5;
@@ -9,8 +8,6 @@ const GAIN_DECAY: f32 = 0.001;
 const SMOOTHING: (f32, f32) = (0.6, 0.05);
 
 pub struct BassEffect {
-    gain_filter: GainFilter,
-    smoothing_filter: SmoothingFilter,
     peak_detector: PeakDetector
 }
 
@@ -18,8 +15,6 @@ impl BassEffect {
 
     pub fn new() -> Self {
         BassEffect {
-            gain_filter: GainFilter::gain_settings(),
-            smoothing_filter: SmoothingFilter::smoothing_settings(),
             peak_detector: PeakDetector::new(ACCURACY, SENSITIVITY, GAIN_DECAY, SMOOTHING)
         }
     }

@@ -54,7 +54,7 @@ pub fn gaussian_curve(len: usize, std: f32) -> Vec<f32> {
 
     for i in 0..len {
         let x = i as f32;
-        let exponent = -((x - center).powi(2)) / sigma2;
+        let exponent = -(x - center).powi(2) / sigma2;
         curve.push(f32::exp(exponent));
     }
 

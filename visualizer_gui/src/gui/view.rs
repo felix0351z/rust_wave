@@ -1,14 +1,14 @@
 pub mod color_slider;
+mod utils;
 
+use crate::gui::view::color_slider::color_slider;
+use crate::gui::view::utils::settings_grid;
 use crate::gui::view_model::AudioVisualizerViewModel;
 use eframe::emath::Vec2b;
 use eframe::{App, Frame};
-use egui::{remap_clamp, Color32, Context, InnerResponse, Ui};
-use egui_plot::Line;
-use std::fmt::Debug;
 use egui::ecolor::Hsva;
-use strum::IntoEnumIterator;
-use crate::gui::view::color_slider::{color_slider};
+use egui::{remap_clamp, Color32, Context, Ui};
+use egui_plot::Line;
 
 /// The App
 pub struct AudioVisualizerView {
@@ -18,10 +18,7 @@ pub struct AudioVisualizerView {
 /// Initialize the app
 impl Default for AudioVisualizerView {
     fn default() -> Self {
-        let vm = AudioVisualizerViewModel::new();
-        AudioVisualizerView {
-            vm
-        }
+        Self { vm: AudioVisualizerViewModel::new() }
     }
 }
 
@@ -40,7 +37,6 @@ impl App for AudioVisualizerView {
 
 /// All UI Panels
 impl AudioVisualizerView {
-
 
     fn show_plot(&mut self, ui: &mut Ui) {
         let update = self.vm.receive_plot_update();
@@ -73,18 +69,6 @@ impl AudioVisualizerView {
     }
 }
 
-
-/// Shortcut to build a settings grid
-fn settings_grid<R>(id: &'static str, ui: &mut Ui, content: impl FnOnce(&mut Ui) -> R) -> InnerResponse<R> {
-    egui::Grid::new(id)
-        .num_columns(2)
-        .spacing([40.0, 4.0])
-        .striped(true)
-        .show(ui, |ui| {
-            content(ui)
-        })
-}
-
 fn grid_audio_source(ui: &mut Ui, vm: &mut AudioVisualizerViewModel) {
 
     // ComboBox Host
@@ -94,8 +78,10 @@ fn grid_audio_source(ui: &mut Ui, vm: &mut AudioVisualizerViewModel) {
         .show_ui(ui, |ui| {
             for (i, host) in vm.get_hosts().iter().enumerate() {
                 if ui.selectable_value(&mut vm.selected_host, i, host.name()).clicked() {
-                    // Notify when another host was selected
-                    vm.click_update_host(host);
+                    if vm.selected_host != i {
+                        // Notify when another host was selected
+                        vm.click_update_host(host);
+                    }
                 }
             }
         });

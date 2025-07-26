@@ -1,18 +1,16 @@
-use crate::controller::dsp::tick;
-use crate::controller::effects::{AudioEffect, Color, EffectDescription};
-use crate::controller::effects::melbank::MelbankEffect;
+use std::error::Error;
+use std::sync::{Arc, Mutex};
+use log::error;
 
 use cpal::traits::{DeviceTrait, StreamTrait};
 use cpal::InputCallbackInfo;
 
-use std::error::Error;
-use std::ops::Deref;
-use std::sync::{Arc, Mutex};
-use log::{debug, error};
-use crate::controller::channel::{Receiver, Sender};
-use crate::controller::effects::shine::ShineEffect;
-use crate::controller::effects::spectrum::SpectrumEffect;
-use crate::ControllerError;
+use channel::{Receiver, Sender};
+use super::ControllerError;
+use super::dsp::tick;
+use super::effects::AudioEffect;
+
+pub mod channel;
 
 #[derive(Debug, Copy, Clone)]
 pub struct Settings {
@@ -62,7 +60,7 @@ impl Stream {
         effect: Box<dyn AudioEffect>,
     ) -> Result<Receiver, Box<dyn Error>> {
         // Run the processing stream on another thread and share the data between a channel
-        let (tx, rx) = crate::controller::channel::new();
+        let (tx, rx) = channel::new();
 
         // Create a buffer for the thread
         let buffer = Arc::new(Mutex::new(

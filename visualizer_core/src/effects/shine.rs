@@ -1,8 +1,7 @@
-use crate::controller::channel::{Frame, ViewFrame};
-use crate::controller::dsp::apply_mel_matrix;
-use crate::controller::dsp::detection::PeakDetector;
-use crate::controller::effects::{apply_gain_filter, apply_smoothing_filter, AudioData, AudioEffect, Color, GainFilter, SmoothingFilter};
-use crate::controller::math::{transpose, Flip};
+use super::*;
+use crate::dsp::{PeakDetector, apply_mel_matrix};
+use crate::math::{transpose, Flip};
+use crate::stream::channel::{Frame, ViewFrame};
 
 pub struct ShineEffect {
     gain_filter: GainFilter,
@@ -26,14 +25,12 @@ impl ShineEffect {
         );
         let color = Color::new(SHINE_COLOR);
 
-        let mut shine_effect = ShineEffect {
+        ShineEffect {
             gain_filter: GainFilter::gain_settings(),
             smooth_filter: SmoothingFilter::smoothing_settings(),
             peak_detector: detector,
             color,
-        };
-
-        shine_effect
+        }
     }
 }
 

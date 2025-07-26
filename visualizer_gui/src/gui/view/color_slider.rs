@@ -1,7 +1,6 @@
 use egui::{lerp, pos2, remap_clamp, vec2, Color32, Mesh, Response, Sense, Shape, Stroke, TextEdit, Ui, WidgetInfo, WidgetType};
 use std::ops::RangeInclusive;
 use eframe::epaint::StrokeKind;
-use realfft::num_traits::clamp;
 
 const N: u32 = 6 * 6 * 10;
 
@@ -102,7 +101,7 @@ pub fn color_slider(
         let text_response = ui.add(TextEdit::singleline(&mut text).desired_width(30.0));
         if text_response.changed() {
             if let Ok(v) = text.parse::<u16>() {
-                *value = clamp(v, *range.start(), *range.end());
+                *value = v.clamp(*range.start(), *range.end());
                 changed = true
             }
         }

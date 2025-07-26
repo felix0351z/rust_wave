@@ -1,4 +1,4 @@
-use crate::controller::effects::*;
+use super::*;
 
 pub struct SpectrumEffect {
     gain_filter: GainFilter,

@@ -1,5 +1,5 @@
-use crate::controller::channel::{Frame, ViewFrame};
-use crate::controller::effects::{apply_gain_filter, AudioData, AudioEffect, GainFilter};
+use super::*;
+use crate::stream::channel::{Frame, ViewFrame};
 
 pub struct FftEffect {
     gain_filter: GainFilter
