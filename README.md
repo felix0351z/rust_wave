@@ -4,9 +4,9 @@ This project is a continuation to my previous audio project which was written in
 
 ## Demo
 
+![Demo](images/gui.png)
 
-
-See the program in action on YouTube: 
+See the program in action on [YouTube](https://www.youtube.com/watch?v=M1xNktjkvWU).
 
 ## How it's made
 The project consists of 2 parts
