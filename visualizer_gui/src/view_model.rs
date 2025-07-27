@@ -46,7 +46,7 @@ impl AudioVisualizerViewModel {
         let first_effect = effects[0];
 
         // Open the stream
-        let rx = controller.open_stream(0, first_effect, settings).unwrap();
+        let rx = controller.update_stream(0, first_effect, settings).unwrap();
 
         AudioVisualizerViewModel {
             controller,
@@ -90,7 +90,7 @@ impl AudioVisualizerViewModel {
 
     pub fn click_update_host(&mut self, host: &HostId) {
         //Update lib if the host was clicked and load new input devices
-        self.controller.update_host(*host).unwrap();
+        self.controller.change_host(*host).unwrap();
         self.devices = self.controller.get_available_input_devices().unwrap();
         self.selected_device = 0;
     }
@@ -98,8 +98,7 @@ impl AudioVisualizerViewModel {
     pub fn click_update_controller(&mut self, device: &InputDevice) {
         // Update the device inside the lib and update the stream
 
-        self.controller.update_device(device.id).unwrap();
-        if let Ok(rx) = self.controller.update_stream(self.effects[self.selected_effect], self.settings) {
+        if let Ok(rx) = self.controller.update_stream(device.id, self.effects[self.selected_effect], self.settings) {
             self.receiver = rx;
         }
     }
@@ -126,9 +125,9 @@ impl AudioVisualizerViewModel {
     }
 
     pub fn click_update_effect(&mut self) {
-        self.controller.update_effect(self.effects[self.selected_effect]);
+        self.controller.update_effect(self.effects[self.selected_effect]).unwrap();
 
-        if let Ok(color_selection_available) = self.controller.is_color_selection_available() {
+        if let Ok(color_selection_available) = self.controller.is_color_selection_used() {
             self.color_selection_enabled = color_selection_available;
         }
     }

@@ -88,14 +88,11 @@ const PRE_EMPHASIS_CONST: f32 = 0.9;
 
 fn pre_emphasis(x: &[f32]) -> Vec<f32> {
     let mut y = Vec::<f32>::new();
-    //let mut data = vec![0f32; x.len()];
-    //data.copy_from_slice(x);
 
     // y(t) = x(t) - a*x(t-1)
     y.push(x[0]);
     for i in 1..x.len() {
         y.push(x[i] - PRE_EMPHASIS_CONST*x[i-1]);
-        //data[i] = (data[i] - PRE_EMPHASIS_CONST*data[i-1]);
     }
 
     y

@@ -1,8 +1,5 @@
-use gui::view::{AudioVisualizerView};
-
-mod gui;
-
-//TODO: API refactoring
+mod view;
+mod view_model;
 
 pub const APP_NAME: &'static str = "Audio Visualizer";
 
@@ -15,6 +12,6 @@ fn main() {
     };
 
     eframe::run_native(APP_NAME, options, Box::new(|_cc| {
-        Ok(Box::<AudioVisualizerView>::default())
+        Ok(Box::<view::AudioVisualizerView>::default())
     })).expect("Failed to run app");
 }

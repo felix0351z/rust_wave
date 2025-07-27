@@ -1,9 +1,9 @@
 pub mod color_slider;
 mod utils;
 
-use crate::gui::view::color_slider::color_slider;
-use crate::gui::view::utils::settings_grid;
-use crate::gui::view_model::AudioVisualizerViewModel;
+use crate::view::color_slider::color_slider;
+use crate::view::utils::settings_grid;
+use crate::view_model::AudioVisualizerViewModel;
 use eframe::emath::Vec2b;
 use eframe::{App, Frame};
 use egui::ecolor::Hsva;

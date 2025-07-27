@@ -1,5 +1,3 @@
-use crate::FPS;
-
 /// Exponential filter for the types f32 and Vec<f32>
 /// with two individual factors for rise or decay
 pub struct ExponentialFilter<T> {
@@ -45,6 +43,11 @@ impl ExponentialFilter<f32> {
 impl ExponentialFilter<Vec<f32>> {
     /// Calculate the next smoothed value
     pub fn update(&mut self, values: &mut [f32]) {
+        // If the size of the input bins are changing, resize the internal value
+        if values.len() != self.last.len() {
+            self.last.resize(values.len(), 0.0);
+        }
+
         // Dot he same exponential smoothing as the implementation for the f32 value, but now for every value in the vector
         for (last, value) in self.last.iter_mut().zip(values.iter_mut()) {
             // A faster rise and a shorter decay is usually wanted
@@ -62,7 +65,7 @@ impl ExponentialFilter<Vec<f32>> {
     /// Set the default settings for a smoothing filter
     pub fn smoothing_settings() -> Self {
         Self {
-            last: vec![0.0; FPS],
+            last: vec![0.0; 100],
             alpha_rise: 0.99,
             alpha_decay: 0.05,
         }

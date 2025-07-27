@@ -10,10 +10,15 @@ use stream::Stream;
 use stream::channel::{Receiver, ViewFrame};
 use effects::*;
 
+/// All digital signal processing related stuff
 mod dsp;
+/// the audio stream who processes all data
 mod stream;
+/// math utils
 mod math;
+/// all audio effects
 mod effects;
+/// the sacn sender to send the effects over the network
 mod sender;
 
 #[cfg(test)]
@@ -23,8 +28,7 @@ mod test;
 pub use cpal::HostId;
 pub use stream::Settings;
 pub use stream::channel::ViewFrame as StreamFrame;
-
-pub const FPS: usize = 100;
+use crate::ControllerError::NoValidEffectName;
 
 // Help to declare all method results with the ControllerError Type
 pub type Result<T> = std::result::Result<T, ControllerError>;
@@ -38,7 +42,7 @@ pub struct Controller {
     effects: Vec<EffectDescription>
 }
 
-// All Errors which can occur during the program runtime from the lib
+/// All errors that can occur during the program's runtime
 #[derive(Debug, Error)]
 pub enum  ControllerError {
 
@@ -51,12 +55,14 @@ pub enum  ControllerError {
     NoDeviceFound,
     #[error("No supported audio callback config")]
     NoSupportedConfig,
-    #[error("The given ID is not available")]
-    NoValidId,
+    #[error("The given Effect ID is not available")]
+    NoValidEffectName,
     #[error("No Stream created yet")]
     NoStream
 }
 
+/// The audio input device used by the program to receive audio signals.
+/// This could be your microphone for example.
 #[derive(Clone)]
 pub struct InputDevice {
     pub id: usize,
@@ -67,6 +73,7 @@ pub struct InputDevice {
 
 impl Controller {
 
+    /// Create a new controller
     pub fn new() -> Controller {
         let effects: Vec<EffectDescription> = register_effects! {
             "Melbank" => MelbankEffect::new,
@@ -87,52 +94,23 @@ impl Controller {
         }
     }
 
-    /// Get all available cpal host and initialize with the first available host
+    /// Get all available hosts and initialize with the first available host
     pub fn get_available_hosts(&mut self) -> Result<Vec<HostId>> {
         let hosts = cpal::available_hosts();
 
         // initialize with the first host
-        self.update_host(hosts[0])?;
+        self.change_host(hosts[0])?;
         Ok(hosts)
     }
 
-    /// Update the used host and set the selected device to 0
-    pub fn update_host(&mut self, id: HostId) -> Result<()> {
-        println!("Select host {}", id.name());
-
-        let new = cpal::host_from_id(id)
-            .map_err(|e| {ControllerError::CPALError(e.into())})?;
-
-        self.host = Some(new);
-        Ok(())
-    }
-
-    /// Get a list of all effects
-    pub fn get_effects(&self) -> Vec<&'static str> {
-        self.effects.iter()
-            .map(|it| it.name)
-            .collect::<Vec<_>>()
-    }
-
-    pub fn update_effect(&mut self, effect: &'static str)  {
-        if let Some(effect) = self.effects.iter().find(|it| it.name == effect) {
-            // Build the effect and send it to the stream
-            let built = (effect.factory)();
-            self.stream_handler.update_effect(built)
-        }
-    }
-
+    /// Get a list of all input devices for your current selected host
     pub fn get_available_input_devices(&self) -> Result<Vec<InputDevice>> {
         let devices = self.host.as_ref()
             .expect("No available host found")
             .input_devices()
             .map_err(|e| ControllerError::CPALError(e.into()))?;
 
-
         let mut out: Vec<InputDevice> = Vec::new();
-
-        //TODO: Map error to log
-
         for (id, device) in devices.enumerate() {
             if let Ok(name) = device.name() {
                 out.push(InputDevice {id, name});
@@ -141,8 +119,26 @@ impl Controller {
         Ok(out)
     }
 
-    pub fn update_device(&mut self, id: usize) -> Result<()> {
+    /// Get a list of all available audio effects
+    pub fn get_effects(&self) -> Vec<&'static str> {
+        self.effects.iter()
+            .map(|it| it.name)
+            .collect::<Vec<_>>()
+    }
 
+    /// Change the used host and set the selected device to 0
+    pub fn change_host(&mut self, id: HostId) -> Result<()> {
+        info!("Select host {}", id.name());
+
+        let new = cpal::host_from_id(id)
+            .map_err(|e| {ControllerError::CPALError(e.into())})?;
+
+        self.host = Some(new);
+        Ok(())
+    }
+
+    /// Change the selected input device
+    pub fn change_input_device(&mut self, id: usize) -> Result<()> {
         let devices = self.host.as_ref()
             .expect("No available host found")
             .input_devices()
@@ -157,12 +153,41 @@ impl Controller {
         Ok(())
     }
 
-    pub fn open_stream(&mut self, device: usize, effect: &'static str, settings: Settings) -> Result<std::sync::mpsc::Receiver<ViewFrame>> {
-        self.update_device(device)?;
-        self.update_stream(effect, settings)
+    /// Update an existing audio stream or open a new one with the given attributes
+    pub fn update_stream(&mut self, device: usize, effect: &'static str, settings: Settings) -> Result<std::sync::mpsc::Receiver<ViewFrame>> {
+        self.change_input_device(device)?;
+        self.open_stream(effect, settings)
     }
 
-    pub fn update_stream(&mut self, effect: &'static str, settings: Settings) -> Result<std::sync::mpsc::Receiver<ViewFrame>> {
+    /// Update the audio settings of the stream
+    pub fn update_stream_settings(&mut self, settings: Settings) {
+        self.stream_handler.update_settings(settings)
+    }
+
+
+    /// Change the current audio effect
+    pub fn update_effect(&mut self, effect: &'static str) -> Result<()> {
+        let effect = self.effects.iter()
+            .find(|it| it.name == effect)
+            .ok_or(NoValidEffectName)?;
+
+        // Build the effect and send it to the stream
+        let built = (effect.factory)();
+        self.stream_handler.update_effect(built);
+        Ok(())
+    }
+
+    /// Change the effect color
+    pub fn update_color(&mut self, color: [u8; 3]) {
+        self.stream_handler.update_color(color)
+    }
+
+    /// If the current effect produces his own color this value will be false
+    pub fn is_color_selection_used(&self) -> Result<bool> {
+        self.stream_handler.is_color_selection_used()
+    }
+
+    fn open_stream(&mut self, effect: &'static str, settings: Settings) -> Result<std::sync::mpsc::Receiver<ViewFrame>> {
         info!("Opening stream");
 
         // Check if a valid device & config are available
@@ -182,7 +207,7 @@ impl Controller {
         // Get the effect
         let effect = self.effects.iter()
             .find(|it| it.name == effect)
-            .ok_or(ControllerError::NoValidId)?;
+            .ok_or(ControllerError::NoValidEffectName)?;
 
         // Build the effect
         let built = (effect.factory)();
@@ -203,19 +228,6 @@ impl Controller {
             Err(ControllerError::NoSupportedConfig)
         }
     }
-
-    pub fn update_stream_settings(&mut self, settings: Settings) {
-        self.stream_handler.update_settings(settings)
-    }
-
-    pub fn update_color(&mut self, color: [u8; 3]) {
-        self.stream_handler.update_color(color)
-    }
-
-    pub fn is_color_selection_available(&self) -> Result<bool> {
-        self.stream_handler.is_color_selection_available()
-    }
-
 
 }
 

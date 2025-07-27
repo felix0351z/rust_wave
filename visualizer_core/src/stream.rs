@@ -123,7 +123,7 @@ impl Stream {
         }
     }
 
-    pub fn is_color_selection_available(&self) -> crate::Result<bool> {
+    pub fn is_color_selection_used(&self) -> crate::Result<bool> {
         let guard = self.buffer.as_deref()
             .ok_or(ControllerError::NoStream)?
             .lock()
