@@ -45,10 +45,10 @@ cargo run --release
 ```
 
 ### Led stripe
-To see the effects in action you need a LED stripe with a small microcontroller attached.
+- To see the effects in action you need a LED stripe with a small microcontroller attached.
 I've used an esp32 microcontroller and a ws2812b/sk8612 strip for this. <br>
-You can get yourself a small microcontroller such the ESP32 on which you can run WLED or any other software that allows you to receive the sACN signal from the computer. <br>
-For WLED, you must then activate sACN via multicast.
+- Then you habe to run [WLED](https://github.com/wled/WLED) or any other software that allows you to receive the sACN signal from the computer. <br>
+- Finally, enable sACN Multicast
 
 ![Example](images/wled-sacn.png)
 
