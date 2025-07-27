@@ -50,6 +50,8 @@ I've used an esp32 microcontroller and a ws2812b/sk8612 strip for this. <br>
 You can get yourself a small microcontroller such the ESP32 on which you can run WLED or any other software that allows you to receive the sACN signal from the computer. <br>
 For WLED, you must then activate sACN via multicast.
 
+![Example](images/wled-sacn.png)
+
 
 ### Recommended but optional:
 Use an extra power supply to prevent the power from flowing through the whole esp. Without this, the esp can't deliver the maximum 5V for the leds (Only 3.3V) and could get hot.
