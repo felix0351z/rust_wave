@@ -73,7 +73,7 @@ fn grid_audio_source(ui: &mut Ui, vm: &mut AudioVisualizerViewModel) {
 
     // ComboBox Host
     ui.label("Host");
-    egui::ComboBox::from_id_salt("a")
+    egui::ComboBox::from_id_salt("host")
         .selected_text(vm.get_selected_host())
         .show_ui(ui, |ui| {
             for (i, host) in vm.get_hosts().iter().enumerate() {
@@ -89,7 +89,7 @@ fn grid_audio_source(ui: &mut Ui, vm: &mut AudioVisualizerViewModel) {
 
     // Combobox Input device
     ui.label("Input device");
-    egui::ComboBox::from_id_salt("b")
+    egui::ComboBox::from_id_salt("id")
         .selected_text(vm.get_selected_device())
         .show_ui(ui, |ui| {
             for (i, device) in vm.get_devices().iter().enumerate() {
@@ -101,8 +101,8 @@ fn grid_audio_source(ui: &mut Ui, vm: &mut AudioVisualizerViewModel) {
         });
     ui.end_row();
 
-    ui.label("Plot");
-    egui::ComboBox::from_id_salt("pgg")
+    ui.label("Effect");
+    egui::ComboBox::from_id_salt("effect")
         .selected_text(vm.get_selected_effect())
         .show_ui(ui, |ui| {
             for (i, effect_name) in vm.get_effects().iter().enumerate() {
@@ -118,7 +118,7 @@ fn grid_audio_source(ui: &mut Ui, vm: &mut AudioVisualizerViewModel) {
     ui.checkbox(&mut vm.use_logarithmic_scale, "");
     ui.end_row();
 
-    ui.label("Amount Bins");
+    ui.label("Bins");
     if ui.add(egui::Slider::new(&mut vm.settings.n_bins, 1..=100)).dragged() {
         vm.click_update_settings();
     }
