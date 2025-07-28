@@ -1,3 +1,6 @@
+use std::default::Default;
+use egui::{Style, Visuals};
+
 mod view;
 mod view_model;
 
@@ -11,7 +14,12 @@ fn main() {
         ..Default::default()
     };
 
-    eframe::run_native(APP_NAME, options, Box::new(|_cc| {
+    eframe::run_native(APP_NAME, options, Box::new(|creation_context| {
+        let style = Style {
+            visuals: Visuals::dark(),
+            ..Style::default()
+        };
+        creation_context.egui_ctx.set_style(style);
         Ok(Box::<view::AudioVisualizerView>::default())
     })).expect("Failed to run app");
 }
