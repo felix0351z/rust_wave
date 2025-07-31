@@ -3,6 +3,7 @@ use egui::{Style, Visuals};
 
 mod view;
 mod view_model;
+mod utils;
 
 pub const APP_NAME: &'static str = "Audio Visualizer";
 
