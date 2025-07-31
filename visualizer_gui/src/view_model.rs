@@ -1,11 +1,10 @@
-use std::sync::{Arc, Mutex};
-use std::sync::mpsc::Receiver;
-use std::thread;
-use egui::{remap_clamp, Color32};
 use egui::ecolor::Hsva;
+use egui::{remap_clamp, Color32};
 use egui_plot::{PlotBounds, PlotPoints};
+use std::ops::Deref;
 
-use visualizer_core::{Controller, InputDevice, HostId, Settings, StreamFrame};
+use super::utils::{MapToPlotPoints, StreamReader};
+use visualizer_core::{Controller, HostId, InputDevice, Settings};
 
 
 pub struct AudioVisualizerViewModel {
@@ -13,6 +12,7 @@ pub struct AudioVisualizerViewModel {
     hosts: Vec<HostId>,
     devices: Vec<InputDevice>,
     effects: Vec<&'static str>,
+    stream_reader: StreamReader,
 
     pub selected_host: usize,
     pub selected_device: usize,
@@ -21,7 +21,6 @@ pub struct AudioVisualizerViewModel {
     pub settings: Settings,
     pub color: ColorState,
     pub color_selection_enabled: bool,
-    latest_frame: Arc<Mutex<Option<StreamFrame>>>
 }
 
 pub struct PlotUpdate<'a> {
@@ -49,22 +48,17 @@ impl AudioVisualizerViewModel {
 
         // Open the stream
         let rx = controller.update_stream(0, first_effect, settings).unwrap();
-        let latest: Arc<Mutex<Option<StreamFrame>>> = Arc::new(Mutex::new(None));
 
-        thread::spawn({
-            let latest2 = latest.clone();
-            move || {
-                while let Ok(frame) = rx.recv() {
-                    *latest2.lock().unwrap() = Some(frame);
-                }
-            }
-        });
+        // Start the reader and listen to the audio visualizer
+        let mut stream_reader = StreamReader::new();
+        stream_reader.start(rx);
 
         AudioVisualizerViewModel {
             controller,
             hosts,
             devices,
             effects,
+            stream_reader,
             selected_host: 0,
             selected_device: 0,
             selected_effect: 0,
@@ -72,7 +66,6 @@ impl AudioVisualizerViewModel {
             settings,
             color: ColorState::default(),
             color_selection_enabled: true,
-            latest_frame: latest,
         }
     }
 
@@ -111,7 +104,7 @@ impl AudioVisualizerViewModel {
         // Update the device inside the lib and update the stream
 
         if let Ok(rx) = self.controller.update_stream(device.id, self.effects[self.selected_effect], self.settings) {
-            //self.receiver = rx;
+            self.stream_reader.start(rx)
         }
     }
 
@@ -146,11 +139,8 @@ impl AudioVisualizerViewModel {
 
     pub fn receive_plot_update(&self) -> Option<PlotUpdate> {
         // Receive data
-        let latest = self.latest_frame.lock().unwrap();
-        if let Some(frame) = &*latest {
-            // Zeige Frame, kein Warten nötig
-
-        //if let Ok(frame) = self.receiver.try_recv() {
+        let guard = self.stream_reader.lock_frame();
+        if let Some(frame) = guard.deref() {
             let color = Color32::from_rgb(frame.color[0], frame.color[1], frame.color[2]);
             let points = frame.effect.to_plot_points(self.use_logarithmic_scale);
 
@@ -168,22 +158,5 @@ impl AudioVisualizerViewModel {
             });
         }
         None
-    }
-}
-
-trait MapToPlotPoints {
-    fn to_plot_points(&self, logarithmic_scale: bool) -> PlotPoints<'static>;
-}
-
-impl MapToPlotPoints for Vec<f32> {
-    fn to_plot_points(&self, logarithmic_scale: bool) -> PlotPoints<'static> {
-        // Map the values to a list of plot points
-        // Use the iterator as x and the vec as y
-        (0..self.len())
-            .map(|i| {
-                let x = if logarithmic_scale { (i as f64).log10() } else { i as f64 };
-                let y = self[i] as f64;
-                [x, y] })
-            .collect()
     }
 }
