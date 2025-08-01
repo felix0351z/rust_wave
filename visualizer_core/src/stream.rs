@@ -57,6 +57,7 @@ impl Stream {
         device: &cpal::Device,
         config: cpal::StreamConfig,
         settings: Settings,
+        color: [u8; 3],
         effect: Box<dyn AudioEffect>,
     ) -> Result<Receiver, Box<dyn Error>> {
         // Run the processing stream on another thread and share the data between a channel
@@ -69,7 +70,7 @@ impl Stream {
                 settings,
                 sample_rate: config.sample_rate.0,
                 sender: tx,
-                color: [255u8; 3],
+                color,
                 effect
             }
         ));

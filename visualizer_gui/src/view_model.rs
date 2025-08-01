@@ -3,6 +3,7 @@ use egui::{remap_clamp, Color32};
 use egui_plot::{PlotBounds, PlotPoints};
 use std::ops::Deref;
 
+use super::view::color_slider::ColorState;
 use super::utils::{MapToPlotPoints, StreamReader};
 use visualizer_core::{Controller, HostId, InputDevice, Settings};
 
@@ -29,12 +30,6 @@ pub struct PlotUpdate<'a> {
     pub bounds: PlotBounds,
 }
 
-#[derive(Clone, Copy, Default)]
-pub struct ColorState {
-    pub hue: u16,
-    pub saturation: u16,
-}
-
 impl AudioVisualizerViewModel {
 
     pub fn new() -> AudioVisualizerViewModel {
@@ -45,10 +40,10 @@ impl AudioVisualizerViewModel {
         let settings = Settings::default();
 
         let first_effect = effects[0];
+        let color = ColorState::default();
 
         // Open the stream
-        let rx = controller.update_stream(0, first_effect, settings).unwrap();
-
+        let rx = controller.update_stream(0, first_effect, settings, color.as_rgb()).unwrap();
         // Start the reader and listen to the audio visualizer
         let mut stream_reader = StreamReader::new();
         stream_reader.start(rx);
@@ -64,7 +59,7 @@ impl AudioVisualizerViewModel {
             selected_effect: 0,
             use_logarithmic_scale: false,
             settings,
-            color: ColorState::default(),
+            color,
             color_selection_enabled: true,
         }
     }
@@ -103,7 +98,7 @@ impl AudioVisualizerViewModel {
     pub fn click_update_controller(&mut self, device: &InputDevice) {
         // Update the device inside the lib and update the stream
 
-        if let Ok(rx) = self.controller.update_stream(device.id, self.effects[self.selected_effect], self.settings) {
+        if let Ok(rx) = self.controller.update_stream(device.id, self.effects[self.selected_effect], self.settings, self.color.as_rgb()) {
             self.stream_reader.start(rx)
         }
     }

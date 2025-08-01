@@ -1,9 +1,12 @@
 use egui::{lerp, pos2, remap_clamp, vec2, Color32, Mesh, Response, Sense, Shape, Stroke, TextEdit, Ui, WidgetInfo, WidgetType};
 use std::ops::RangeInclusive;
-use eframe::epaint::StrokeKind;
+use eframe::epaint::{Hsva, StrokeKind};
 
 const N: u32 = 6 * 6 * 10;
 
+/// Create a new color slider
+/// This color slider can be used to visualize different parts of the color
+/// like saturation or hue
 pub fn color_slider(
     ui: &mut Ui,
     label: &str,
@@ -112,10 +115,40 @@ pub fn color_slider(
     (response, changed)
 }
 
+/// Remap the input value, with the given range, to a float between 0 and 1
+/// and map it through the color_at function to create a Color32 object.
+/// This is necessary because egui needs a Color32 object to draw the values.
 fn value_to_color(value: u16, range: &RangeInclusive<u16>, color_at: &impl Fn(f32) -> Color32) -> Color32 {
     color_at(remap_clamp(
         value as f32,
         *range.start() as f32..=*range.end() as f32,
         0.0..=1.0,
     ))
+}
+
+/// Hue and Saturation as one Color-Object.
+#[derive(Clone, Copy, Default)]
+pub struct ColorState {
+    pub hue: u16,
+    pub saturation: u16,
+}
+
+impl ColorState {
+
+    /// Get the current color in the rgb format.
+    pub fn as_rgb(&self) -> [u8; 3] {
+        let hue = remap_clamp(
+            self.hue as f32,
+            0f32..=360f32,
+            0f32..=1f32
+        );
+        let sat = remap_clamp(
+            self.saturation as f32,
+            0f32..=255f32,
+            0f32..=1f32
+        );
+
+        let color = Color32::from(Hsva { h: hue, s: sat, v: 1.0, a: 1.0, });
+        [color.r(), color.g(), color.b()]
+    }
 }

@@ -154,9 +154,9 @@ impl Controller {
     }
 
     /// Update an existing audio stream or open a new one with the given attributes
-    pub fn update_stream(&mut self, device: usize, effect: &'static str, settings: Settings) -> Result<std::sync::mpsc::Receiver<ViewFrame>> {
+    pub fn update_stream(&mut self, device: usize, effect: &'static str, settings: Settings, color: [u8; 3]) -> Result<std::sync::mpsc::Receiver<ViewFrame>> {
         self.change_input_device(device)?;
-        self.open_stream(effect, settings)
+        self.open_stream(effect, settings, color)
     }
 
     /// Update the audio settings of the stream
@@ -187,7 +187,7 @@ impl Controller {
         self.stream_handler.is_color_selection_used()
     }
 
-    fn open_stream(&mut self, effect: &'static str, settings: Settings) -> Result<std::sync::mpsc::Receiver<ViewFrame>> {
+    fn open_stream(&mut self, effect: &'static str, settings: Settings, color: [u8; 3]) -> Result<std::sync::mpsc::Receiver<ViewFrame>> {
         info!("Opening stream");
 
         // Check if a valid device & config are available
@@ -215,7 +215,7 @@ impl Controller {
         // If a valid config with f32 was found create the stream
         if let Some(config) = config {
             // Start the stream and if an error occurs, notify the view
-            let rx = self.stream_handler.open(device, config.into(), settings, built)
+            let rx = self.stream_handler.open(device, config.into(), settings,  color,  built)
                 .map_err(|e| ControllerError::CPALError(e.into()))?;
 
             // Start the sacn sender
